@@ -21,14 +21,14 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/first-post.html">First Post</a></h1>
+                    <h1 class="entry-title"><a href="/how to use jupyter.html">Jupyter Guide</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2016-06-08T20:00:00+02:00">
-                Published: 三 08 六月 2016
+        <abbr class="published" title="2017-03-15T12:00:00+01:00">
+                Published: 三 15 三月 2017
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="/author/me.html">me</a>
+                By                         <a class="url fn" href="/author/binboy.html">Binboy</a>
         </address>
 <p>In <a href="/category/posts.html">posts</a>.</p>
 <p>tags: <a href="/tag/python.html">python</a> </p>
@@ -1009,7 +1009,40 @@ h6:hover .anchor-link {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="First-post!">First post!<a class="anchor-link" href="#First-post!">¶</a></h1><p>This will be the first post in our new Pelican blog! You can add any code or markdown cells to this Jupyter notebook, and they will be rendered on your blog.</p>
+<h1 id="Text-Using-Markdown">Text Using Markdown<a class="anchor-link" href="#Text-Using-Markdown">¶</a></h1><p><strong>If you double click on this cell</strong>, you will see the text change so that all of the formatting is removed. This allows you to edit this block of text. This block of text is written using <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a>, which is a way to format text using headers, links, italics, and many other options. Hit <em>shift</em> + <em>enter</em> or <em>shift</em> + <em>return</em> on your keyboard to show the formatted text again. This is called "running" the cell, and you can also do it using the run button in the toolbar.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Code-cells">Code cells<a class="anchor-link" href="#Code-cells">¶</a></h1><p>One great advantage of IPython notebooks is that you can show your Python code alongside the results, add comments to the code, or even add blocks of text using Markdown. These notebooks allow you to collaborate with others and share your work. The following cell is a code cell.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [1]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Hit shift + enter or use the run button to run this cell and see the results</span>
+
+<span class="k">print</span> <span class="s1">'hello world'</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>hello world
+</pre>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1018,9 +1051,11 @@ h6:hover .anchor-link {
 <div class="prompt input_prompt">In [2]:</div>
 <div class="inner_cell">
 <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># The last line of every code cell will be displayed by default, </span>
+<span class="c1"># even if you don't print it. Run this cell to see how this works.</span>
 
-<span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="c1"># The result of this line will not be displayed</span>
+<span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span> <span class="c1"># The result of this line will be displayed, because it is the last line of the cell</span>
 </pre></div>
 </div>
 </div>
@@ -1030,7 +1065,77 @@ h6:hover .anchor-link {
 <div class="output_area">
 <div class="prompt output_prompt">Out[2]:</div>
 <div class="output_text output_subarea output_execute_result">
-<pre>4</pre>
+<pre>6</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Nicely-formatted-results">Nicely formatted results<a class="anchor-link" href="#Nicely-formatted-results">¶</a></h1><p>IPython notebooks allow you to display nicely formatted results, such as plots and tables, directly in
+the notebook. You'll learn how to use the following libraries later on in this course, but for now here's a
+preview of what IPython notebook can do.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [3]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># If you run this cell, you should see the values displayed as a table.</span>
+
+<span class="c1"># Pandas is a software library for data manipulation and analysis. You'll learn to use it later in this course.</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'a'</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="s1">'b'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]})</span>
+<span class="n">df</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="prompt output_prompt">Out[3]:</div>
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>a</th>
+<th>b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<th>1</th>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr>
+<th>2</th>
+<td>6</td>
+<td>5</td>
+</tr>
+<tr>
+<th>3</th>
+<td>8</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 </div>
@@ -1041,11 +1146,15 @@ h6:hover .anchor-link {
 <div class="prompt input_prompt">In [4]:</div>
 <div class="inner_cell">
 <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># If you run this cell, you should see a scatter plot of the function y = x^2</span>
 
-<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="o">%</span><span class="k">pylab</span> inline
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
+<span class="n">xs</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+<span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1053,91 +1162,198 @@ h6:hover .anchor-link {
 <div class="output_wrapper">
 <div class="output">
 <div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Populating the interactive namespace from numpy and matplotlib
+</pre>
+</div>
+</div>
+<div class="output_area">
 <div class="prompt output_prompt">Out[4]:</div>
 <div class="output_text output_subarea output_execute_result">
-<pre>(array([ 2.,  1.,  1.,  0.,  2.,  0.,  1.,  0.,  0.,  2.]),
- array([  1. ,   1.9,   2.8,   3.7,   4.6,   5.5,   6.4,   7.3,   8.2,
-          9.1,  10. ]),
- <a list of 10 patch objects>)</pre>
+<pre><matplotlib.collections.pathcollection at 0x11724ecd0></pre>
 </div>
 </div>
 <div class="output_area">
 <div class="prompt"></div>
 <div class="output_png output_subarea ">
-<img src="data:image/png;base64,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
+<img src="data:image/png;base64,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
+TkSuQmCC
 ">
 </img></div>
 </div>
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Creating-cells">Creating cells<a class="anchor-link" href="#Creating-cells">¶</a></h1><p>To create a new <strong>code cell</strong>, click "Insert > Insert Cell [Above or Below]". A code cell will automatically be created.</p>
+<p>To create a new <strong>markdown cell</strong>, first follow the process above to create a code cell, then change the type from "Code" to "Markdown" using the dropdown next to the run, stop, and restart buttons.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Re-running-cells">Re-running cells<a class="anchor-link" href="#Re-running-cells">¶</a></h1><p>If you find a bug in your code, you can always update the cell and re-run it. However, any cells that come afterward won't be automatically updated. Try it out below. First run each of the three cells. The first two don't have any output, but you will be able to tell they've run because a number will appear next to them, for example, "In [5]". The third cell should output the message "Intro to Data Analysis is awesome!"</p>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In [ ]:</div>
+<div class="prompt input_prompt">In [5]:</div>
 <div class="inner_cell">
 <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">class_name</span> <span class="o">=</span> <span class="s2">"Intro to Data Analysis"</span>
 </pre></div>
 </div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [6]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">message</span> <span class="o">=</span> <span class="n">class_name</span> <span class="o">+</span> <span class="s2">" is awesome!"</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [7]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">message</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area">
+<div class="prompt output_prompt">Out[7]:</div>
+<div class="output_text output_subarea output_execute_result">
+<pre>'Intro to Data Analysis is awesome!'</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once you've run all three cells, try modifying the first one to set <code>class_name</code> to your name, rather than "Intro to Data Analysis", so you can print that you are awesome.  Then rerun the first and third cells without rerunning the second.</p>
+<p>You should have seen that the third cell still printed "Intro to Data Analysis is awesome!"  That's because you didn't rerun the second cell, so even though the <code>class_name</code> variable was updated, the <code>message</code> variable was not.  Now try rerunning the second cell, and then the third.</p>
+<p>You should have seen the output change to "<em>your name</em> is awesome!"  Often, after changing a cell, you'll want to rerun all the cells below it.  You can do that quickly by clicking "Cell > Run All Below".</p>
+<p>One final thing to remember: if you shut down the kernel after saving your notebook, the cells' output will still show up as you left it at the end of your session when you start the notebook back up. However, the state of the kernel will be reset. If you are actively working on a notebook, remember to re-run your cells to set up your working environment to really pick up where you last left off.</p>
 </div>
 </div>
 </div>
@@ -1171,6 +1387,45 @@ l6SGjLskNWTcJakh4y5JDf0vZB9FlJ1A1boAAAAASUVORK5CYII=
 </script>
                 </article>
             </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/first-post.html" rel="bookmark"
+                           title="Permalink to First Post">First Post</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2016-06-08T20:00:00+02:00">
+                Published: 三 08 六月 2016
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/me.html">me</a>
+        </address>
+<p>In <a href="/category/posts.html">posts</a>.</p>
+<p>tags: <a href="/tag/python.html">python</a> </p>
+</footer><!-- /.post-info -->                
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="First-post!">First post!<a class="anchor-link" href="#First-post!">¶</a></h1><p>This will be the first post in our new Pelican blog! You can add any code or markdown cells to this Jupyter notebook, and they will be rendered on your blog.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+                <a class="readmore" href="/first-post.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
         <section id="extras" class="body">
                 <div class="blogroll">
                         <h2>blogroll</h2>
