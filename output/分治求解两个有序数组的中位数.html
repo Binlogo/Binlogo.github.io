@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+        <meta charset="utf-8" />
+        <title>LeetCode 4 - Median of Two Sorted Arrays</title>
+        <link rel="stylesheet" href="http://binlogo.github.io/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="http://binlogo.github.io/">Binboy's Tech Blog </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="http://binlogo.github.io/category/posts.html">posts</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="http://binlogo.github.io/分治求解两个有序数组的中位数.html" rel="bookmark"
+           title="Permalink to LeetCode 4 - Median of Two Sorted Arrays">LeetCode 4 - Median of Two Sorted Arrays</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2018-03-07T22:50:00+01:00">
+                Published: Wed 07 March 2018
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="http://binlogo.github.io/author/binboy.html">Binboy</a>
+        </address>
+<p>In <a href="http://binlogo.github.io/category/posts.html">posts</a>.</p>
+<p>tags: <a href="http://binlogo.github.io/tag/leetcode.html">LeetCode</a> </p>
+</footer><!-- /.post-info -->      <h3>题目描述</h3>
+<blockquote>
+<p>There are two sorted arrays nums1 and nums2 of size m and n respectively.
+Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).</p>
+</blockquote>
+<p>有两个有序数组<code>nums1</code>和<code>nums2</code>, 长度分别为<code>m</code>、<code>n</code>。找出这两个有序数组合并后的中位数。复杂度不超过 <code>O(log(m+n)</code></p>
+<h4>测试用例</h4>
+<div class="highlight"><pre><span></span>// 若合并后的长度为奇数
+nums1 = [1, 3]
+nums2 = [2]
+
+The median is 2.0
+
+// 若合并后的长度为偶数
+nums1 = [1, 2]
+nums2 = [3, 4]
+
+The median is (2 + 3)/2 = 2.5
+</pre></div>
+
+
+<h4>简单粗暴的思路1</h4>
+<p>遍历两个数组，在其中找出第k大的元素，时间复杂度<code>O(m+n)</code>, 可以实现查找中位数的目的，但不符合题目要求。
+简单描述这个思路的实现方式：用两个变量分别指向两个数组，每次取较小值，并向后移动。需要注意的就是奇偶判断，如果是奇数，中位数为<code>nums[mid]</code>，如果是偶数，中位数则是<code>(nums[mid] + nums[mid - 1])/2</code>.</p>
+<h4>思路2：分而治之（Divide &amp; Conquer）</h4>
+<blockquote>
+<p>通过在有序数组中找到一个枢值，将其分为左右两部分，通过对枢值的判断，可将左右某部分忽略，继而在剩下的部分继续寻找新的枢值，直到条件终止。</p>
+</blockquote>
+<div class="highlight"><pre><span></span><span class="kd">class</span> <span class="nc">Solution</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">findMedianSortedArrays</span><span class="p">(</span><span class="kc">_</span> <span class="n">nums1</span><span class="p">:</span> <span class="p">[</span><span class="nb">Int</span><span class="p">],</span> <span class="kc">_</span> <span class="n">nums2</span><span class="p">:</span> <span class="p">[</span><span class="nb">Int</span><span class="p">])</span> <span class="p">-&gt;</span> <span class="nb">Double</span> <span class="p">{</span>
+        <span class="kd">let</span> <span class="nv">length</span> <span class="p">=</span> <span class="n">nums1</span><span class="p">.</span><span class="bp">count</span> <span class="o">+</span> <span class="n">nums2</span><span class="p">.</span><span class="bp">count</span>
+        <span class="k">if</span> <span class="n">length</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">findKth</span><span class="p">(</span><span class="n">nums1</span><span class="p">:</span> <span class="n">nums1</span><span class="p">,</span> <span class="n">nums2</span><span class="p">:</span> <span class="n">nums2</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">findKth</span><span class="p">(</span><span class="n">nums1</span><span class="p">:</span> <span class="n">nums1</span><span class="p">,</span> <span class="n">nums2</span><span class="p">:</span> <span class="n">nums2</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">findKth</span><span class="p">(</span><span class="n">nums1</span><span class="p">:</span> <span class="n">nums1</span><span class="p">,</span> <span class="n">nums2</span><span class="p">:</span> <span class="n">nums2</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">findKth</span><span class="p">(</span><span class="n">nums1</span><span class="p">:</span> <span class="p">[</span><span class="nb">Int</span><span class="p">],</span> <span class="n">nums2</span><span class="p">:</span> <span class="p">[</span><span class="nb">Int</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">Int</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nb">Double</span> <span class="p">{</span>
+        <span class="kd">let</span> <span class="nv">m</span> <span class="p">=</span> <span class="n">nums1</span><span class="p">.</span><span class="bp">count</span>
+        <span class="kd">let</span> <span class="nv">n</span> <span class="p">=</span> <span class="n">nums2</span><span class="p">.</span><span class="bp">count</span>
+        <span class="c1">// 保证数组1元素更少</span>
+        <span class="k">guard</span> <span class="n">m</span> <span class="o">&lt;=</span> <span class="n">n</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">findKth</span><span class="p">(</span><span class="n">nums1</span><span class="p">:</span> <span class="n">nums2</span><span class="p">,</span> <span class="n">nums2</span><span class="p">:</span> <span class="n">nums1</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="c1">// 若数组1元素为0，则直接返回数组2中第K个元素</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="p">==</span> <span class="mi">0</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">Double</span><span class="p">(</span><span class="n">nums2</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="p">}</span>
+        <span class="c1">// 若查找的是第一个元素，则直接比较两个数组的第一个元素，取最小值</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="p">==</span> <span class="mi">1</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">Double</span><span class="p">(</span><span class="bp">min</span><span class="p">(</span><span class="n">nums1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nums2</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="p">}</span>
+        <span class="c1">// 开始二分法递归查找</span>
+        <span class="kd">let</span> <span class="nv">i</span> <span class="p">=</span> <span class="bp">min</span><span class="p">(</span><span class="n">k</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+        <span class="kd">let</span> <span class="nv">j</span> <span class="p">=</span> <span class="bp">min</span><span class="p">(</span><span class="n">k</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">nums1</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">nums2</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">findKth</span><span class="p">(</span><span class="n">nums1</span><span class="p">:</span> <span class="nb">Array</span><span class="p">(</span><span class="n">nums1</span><span class="p">[</span><span class="n">i</span><span class="p">..&lt;</span><span class="n">m</span><span class="p">]),</span> <span class="n">nums2</span><span class="p">:</span> <span class="n">nums2</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">findKth</span><span class="p">(</span><span class="n">nums1</span><span class="p">:</span> <span class="n">nums1</span><span class="p">,</span> <span class="n">nums2</span><span class="p">:</span> <span class="nb">Array</span><span class="p">(</span><span class="n">nums2</span><span class="p">[</span><span class="n">j</span><span class="p">..&lt;</span><span class="n">n</span><span class="p">]),</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
