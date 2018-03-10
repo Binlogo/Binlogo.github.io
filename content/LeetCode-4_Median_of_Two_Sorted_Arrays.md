@@ -1,10 +1,12 @@
 Title: LeetCode 4 - Median of Two Sorted Arrays
-Slug: 分治求解两个有序数组的中位数
+Slug: 
 Date: 2018-03-07 22:50
 Category: posts
 Tags: LeetCode
 Author: Binboy
 Summary: Read it to find out.
+
+##分治求解两个有序数组的中位数
 
 ### 题目描述
 
@@ -77,3 +79,4 @@ class Solution {
 }
 ```
 
+这样我们就顺利地解决了这个问题，时间复杂度为`O(log(min(m,n)))`，空间复杂度为`O(l)`.
