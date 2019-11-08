@@ -1,0 +1,730 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>探究 Repeat 中 GCD 的应用 | 彬少の原野</title>
+<meta name="description" content="记录工作与生活中的灵感💡与思考🤔">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://binlogo.github.io//favicon.ico?v=1573197472346">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://binlogo.github.io//styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://binlogo.github.io/">
+        <img class="avatar" src="https://binlogo.github.io//images/avatar.png?v=1573197472346" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://binlogo.github.io/">
+        <h1 class="site-title">彬少の原野</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">探究 Repeat 中 GCD 的应用</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2019-10-28</span>
+            
+              <span>
+                <i class="icon-pricetags-outline"></i>
+                
+                  <a href="https://binlogo.github.io//tag/v5Ivtxvrx">
+                    源码剖析
+                    
+                  </a>
+                
+              </span>
+            
+          </div>
+          <div class="post-content">
+            <blockquote>
+<p>这是小专栏《<a href="https://xiaozhuanlan.com/complete-ios-gcd">彻底搞定 GCD🚦并发编程</a>》的一篇副产品文章</p>
+</blockquote>
+<h2 id="简介">简介</h2>
+<p><a href="https://github.com/malcommac/Repeat">Repeat</a> 是 <em>Daniele</em> 开发的一个基于 GCD - Grand Central Dispatch 的轻量定时器，可用于替代 <code>NSTimer</code>，解决其多项<a href="#TBD">不足</a>。</p>
+<h2 id="特性">特性</h2>
+<p>Daniel 着重强调的一些特性：</p>
+<ul>
+<li>接口简洁明了不冗余</li>
+<li>避免强引用，解决潜在的内存泄露问题</li>
+<li>支持注册多个观察者对象监听定时器</li>
+<li>支持暂停、开始、恢复、重置等操作</li>
+<li>支持设置多种重复模式
+<ul>
+<li>infinite：无限定时重复</li>
+<li>finite：有限次定时重复</li>
+<li>once：单次定时执行</li>
+</ul>
+</li>
+</ul>
+<p>针对以上特性，我们接下来阅读源码时可以着重看看 Daniel 是怎样实现的。</p>
+<p>另外，这个库还扩展提供了两个有趣的特性：</p>
+<ul>
+<li>Debouncer: 防抖动，避免方法调用过于密集，总是执行每隔一定时间段内最后一个调用。</li>
+<li>Throttler: 节流阀，确保每隔一定时间段内仅执行一次，并忽略其他调用。</li>
+</ul>
+<p>这两个特性对于用过 <code>RxSwift</code> 的开发者肯定不陌生，有了定时器，实现这两者也是顺理成章。</p>
+<h2 id="接口的设计-使用与实现">接口的设计、使用与实现</h2>
+<p>首先，从接口的设计来看看其是否「简洁明了」、「不冗余」，再逐步深入其内部实现。</p>
+<h3 id="定时器">定时器</h3>
+<blockquote>
+<p>注意：<code>Repeater</code> 被设计成和其他许多对象一样，需要被持有来避免被释放。</p>
+</blockquote>
+<h4 id="创建单次定时器">创建单次定时器</h4>
+<ul>
+<li>接口设计与调用</li>
+</ul>
+<pre><code class="language-swift">// 创建单次执行定时器
+log(&quot;当时只道是寻常&quot;)
+self.timer = Repeater.once(after: .seconds(5)) { timer in
+    // 5s 后运行
+    log(&quot;岁月如歌,简单爱一次&quot;)
+}
+</code></pre>
+<p>输出：</p>
+<pre><code class="language-shell">2019-10-14 15:12:04 +0000: 当时只道是寻常
+2019-10-14 15:12:09 +0000: 岁月如歌,简单爱一次
+</code></pre>
+<ul>
+<li>单元测试设计</li>
+</ul>
+<pre><code class="language-swift">func test_timer_once() {
+  let exp = expectation(description: &quot;test_once&quot;)
+
+  let timer = Repeater.once(after: .seconds(5)) { _ in
+    exp.fulfill()
+  }
+
+  print(&quot;Allocated timer \(timer)&quot;)
+  wait(for: [exp], timeout: 6)
+}
+</code></pre>
+<h4 id="创建有限次重复的定时器">创建有限次重复的定时器</h4>
+<ul>
+<li>接口设计与调用</li>
+</ul>
+<pre><code class="language-swift">log(&quot;当时只道是寻常&quot;)
+self.timer = Repeater.every(.seconds(10), count: 5) { timer in
+    // 每 10s 运行 1 次，5 次后结束
+    log(&quot;岁月如歌,简单爱一次&quot;)
+}
+</code></pre>
+<p>输出：</p>
+<pre><code class="language-shell">2019-10-14 15:18:56 +0000: 当时只道是寻常
+2019-10-14 15:19:06 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:19:16 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:19:26 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:19:36 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:19:46 +0000: 岁月如歌,简单爱一次
+</code></pre>
+<ul>
+<li>单元测试设计</li>
+</ul>
+<pre><code class="language-swift">func test_timer_finiteAndRestart() {
+  let exp = expectation(description: &quot;test_finiteAndRestart&quot;)
+
+  var count: Int = 0
+  var finishedFirstTime: Bool = false
+  let timer = Repeater(interval: .seconds(0.5), mode: .finite(5)) { _ in
+    count += 1
+    print(&quot;Iteration #\(count)&quot;)
+  }
+  timer.onStateChanged = { (_, state) in
+    print(&quot;State changed: \(state)&quot;)
+    if state.isFinished {
+      if finishedFirstTime == false {
+        print(&quot;Now restart&quot;)
+        timer.start()
+        finishedFirstTime = true
+      } else {
+        exp.fulfill()
+      }
+    }
+  }
+
+  timer.start()
+
+  wait(for: [exp], timeout: 30)
+}
+</code></pre>
+<p>单元测试输出：</p>
+<pre><code class="language-shell">State changed: running
+State changed: executing
+Iteration #1
+State changed: executing
+Iteration #2
+State changed: executing
+Iteration #3
+State changed: executing
+Iteration #4
+State changed: executing
+Iteration #5
+State changed: finished
+Now restart
+State changed: idle/paused
+State changed: running
+State changed: executing
+Iteration #6
+State changed: executing
+Iteration #7
+State changed: executing
+Iteration #8
+State changed: executing
+Iteration #9
+State changed: executing
+Iteration #10
+State changed: finished
+</code></pre>
+<p>可以看到，有限次的定时器在次数达到结束后，还可以继续调用 <code>start()</code> 重新开始再次复用，而不必另外创建新实例。</p>
+<h4 id="创建无限重复定时器">创建无限重复定时器</h4>
+<ul>
+<li>接口设计与调用</li>
+</ul>
+<pre><code class="language-swift">log(&quot;当时只道是寻常&quot;)
+let timer = Repeater.every(.seconds(5)) { timer in
+    // 每 5s 运行一次，直到 timer 生命周期结束
+    log(&quot;岁月如歌,简单爱一次&quot;)
+}
+</code></pre>
+<p>输出：</p>
+<pre><code class="language-shell">2019-10-14 15:24:05 +0000: 当时只道是寻常
+2019-10-14 15:24:10 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:24:15 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:24:20 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:24:25 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:24:30 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:24:35 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:24:40 +0000: 岁月如歌,简单爱一次
+2019-10-14 15:24:45 +0000: 岁月如歌,简单爱一次
+...
+</code></pre>
+<ul>
+<li>单元测试设计</li>
+</ul>
+<pre><code class="language-swift">func test_timer_infinite() {
+  let exp = expectation(description: &quot;test_once&quot;)
+
+  var count: Int = 0
+  let timer = Repeater.every(.seconds(0.5), { _ in
+    count += 1
+    if count == 20 {
+      exp.fulfill()
+    }
+  })
+
+  print(&quot;Allocated timer \(timer)&quot;)
+  wait(for: [exp], timeout: 10)
+}
+</code></pre>
+<h4 id="手动管理计时器">手动管理计时器</h4>
+<ul>
+<li>接口设计与调用</li>
+</ul>
+<pre><code class="language-swift">log(&quot;当时只道是寻常&quot;)
+self.timer = Repeater(interval: .seconds(5), mode: .infinite) { _ in
+    // 每 5s 运行一次，直到 timer 生命周期结束
+    log(&quot;岁月如歌,简单爱一次&quot;)
+}
+timer.start()
+</code></pre>
+<p>输出：</p>
+<pre><code class="language-shell">2019-10-14 23:13:46 +0000: 当时只道是寻常
+2019-10-14 23:13:51 +0000: 岁月如歌,简单爱一次
+2019-10-14 23:13:56 +0000: 岁月如歌,简单爱一次
+2019-10-14 23:14:01 +0000: 岁月如歌,简单爱一次
+2019-10-14 23:14:06 +0000: 岁月如歌,简单爱一次
+2019-10-14 23:14:11 +0000: 岁月如歌,简单爱一次
+2019-10-14 23:14:16 +0000: 岁月如歌,简单爱一次
+2019-10-14 23:14:21 +0000: 岁月如歌,简单爱一次
+2019-10-14 23:14:26 +0000: 岁月如歌,简单爱一次
+...
+</code></pre>
+<p>其他方法：</p>
+<ul>
+<li><code>start()</code>: 开始一个已暂停或新创建的定时器</li>
+<li><code>pause()</code>：暂停一个正在运行的定时器</li>
+<li><code>reset(_ interval: Interval, restart: Bool)</code>：重置一个正在运行的定时器，更改时间间隔并重新开始</li>
+<li><code>fire()</code>：额外手动调用一次定时器绑定事件</li>
+</ul>
+<p>属性：</p>
+<ul>
+<li><code>.mode</code>：定时器类型模式
+<ul>
+<li><code>infinite</code>：无限定时重复</li>
+<li><code>finite</code>：有限次定时重复</li>
+<li><code>once</code>：单次定时执行</li>
+</ul>
+</li>
+<li><code>.remainingIterations</code>：针对 <code>.finite</code> 有限次重复模式结束前的剩余迭代次数</li>
+</ul>
+<h4 id="添加或移除多个定时处理">添加或移除多个定时处理</h4>
+<p>一般而言，初始化定时器时会指定一个处理方法。除此之外， Repeat 的定时器还支持通过<code>observe()</code>额外添加处理方法，并且支持通过<code>token</code>再移除。</p>
+<pre><code class="language-swift">// 添加额外的处理监听
+let token = timber.observe { _ in
+	// 额外的新处理
+  log(&quot;一个闹钟能够同时叫醒相爱的两个人。&quot;)
+}
+timer.start()
+
+// 移除
+timer.remove(token)
+</code></pre>
+<h4 id="观察定时器的状态变化">观察定时器的状态变化</h4>
+<p>每个定时器维护着一个状态机，处在以下某个状态：</p>
+<ul>
+<li><code>.paused</code>：空闲（未被开始过）或已暂停</li>
+<li><code>.running</code>：正在计时中</li>
+<li><code>.executing</code>：注册的定时处理方法正在执行</li>
+<li><code>.finished</code>：计时结束</li>
+</ul>
+<p>可以通过<code>.onStateChanged</code>属性添加状态变化回调监听：</p>
+<pre><code class="language-swift">timer.onStateChanged = { timer, newState in
+    // 观察定时器状态变化并做相应处理
+    log(&quot;你永远叫不醒一个装睡的人&quot;)
+}
+</code></pre>
+<h3 id="防抖动器">防抖动器</h3>
+<p><em>TBD</em></p>
+<h3 id="节流阀">节流阀</h3>
+<p><em>TBD</em></p>
+<h2 id="源码探究">源码探究</h2>
+<p>接下来，进一步看看以上的接口都是如何实现的吧。</p>
+<h3 id="文件目录结构">文件目录结构</h3>
+<pre><code class="language-sh">.
+├── CHANGELOG.md
+├── Configs
+│   ├── Repeat.plist
+│   └── RepeatTests.plist
+├── LICENSE
+├── Package.swift
+├── README.md
+├── Repeat.podspec
+├── Repeat.xcodeproj
+├── Sources
+│   └── Repeat
+│       ├── Debouncer.swift
+│       ├── Repeater.swift
+│       └── Throttler.swift
+└── Tests
+    ├── LinuxMain.swift
+    └── RepeatTests
+        └── RepeatTests.swift
+</code></pre>
+<p>主要文件：</p>
+<ul>
+<li>Sources/Repeat/<a href="https://github.com/malcommac/Repeat/blob/develop/Sources/Repeat/Repeater.swift">Repeater.swift</a>： 核心定时器实现</li>
+<li>Sources/Repeat/<a href="https://github.com/malcommac/Repeat/blob/develop/Sources/Repeat/Debouncer.swift">Debouncer.swift</a>： 扩展「防抖动器」实现</li>
+<li>Sources/Repeat/<a href="https://github.com/malcommac/Repeat/blob/develop/Sources/Repeat/Throttler.swift">Throttler.swift</a>： 扩展「节流阀」实现</li>
+<li>Tests/RepeatTests/<a href="https://github.com/malcommac/Repeat/blob/develop/Tests/RepeatTests/RepeatTests.swift">RepeatTests.swift</a>： 单元测试</li>
+</ul>
+<h3 id="类图与方法概览">类图与方法概览</h3>
+<figure data-type="image" tabindex="1"><img src="https://binlogo.github.io//post-images/1573197360001.jpg" alt="Repeat Class UML"></figure>
+<h3 id="工厂类方法实现以及与-timer-的异同">工厂类方法实现以及与 <code>Timer</code> 的异同</h3>
+<p>在<a href="#%E6%8E%A5%E5%8F%A3%E7%9A%84%E8%AE%BE%E8%AE%A1%E3%80%81%E4%BD%BF%E7%94%A8%E4%B8%8E%E5%AE%9E%E7%8E%B0">接口设计与使用</a>中可以看到，Repeater 提供了便捷工厂类方法，并且生成的定时器都会「自动开始」，与 <code>Timer</code> 的工厂类方法相似：</p>
+<pre><code class="language-swift">/// Alternative API for timer creation with a block.
+/// - Experiment: This is a draft API currently under consideration for official import into Foundation as a suitable alternative to creation via selector
+/// - Note: Since this API is under consideration it may be either removed or revised in the near future
+/// - Warning: Capturing the timer or the owner of the timer inside of the block may cause retain cycles. Use with caution
+open class func scheduledTimer(withTimeInterval interval: TimeInterval, 
+                               repeats: Bool, 
+                               block: @escaping (Timer) -&gt; Void) -&gt; Timer {
+    let timer = Timer(fire: Date(timeIntervalSinceNow: interval), interval: interval, repeats: repeats, block: block)
+    CFRunLoopAddTimer(CFRunLoopGetCurrent(), timer._timer!, kCFRunLoopDefaultMode)
+    return timer
+}
+</code></pre>
+<p>👆Tips &amp; Declaration： <a href="https://github.com/apple/swift-corelibs-foundation/blob/master/Foundation/Timer.swift#L68">Timer.swift</a>，注释中有特别提醒注意循环引用的问题。</p>
+<p>对比一下 <code>Repeater</code> 的类工厂方法实现：</p>
+<pre><code class="language-swift">/// Create and schedule a timer that will call `handler` once after the specified time.
+///
+/// - Parameters:
+///   - interval: interval delay for single fire
+///   - queue: destination queue, if `nil` a new `DispatchQueue` is created automatically.
+///   - observer: handler to call when timer fires.
+/// - Returns: timer instance
+@discardableResult
+public class func once(after interval: Interval, 
+                       tolerance: DispatchTimeInterval = .nanoseconds(0), 
+                       queue: DispatchQueue? = nil, 
+                       _ observer: @escaping Observer) -&gt; Repeater {
+      let timer = Repeater(interval: interval, mode: .once, tolerance: tolerance, queue: queue, observer: observer)
+  timer.start()
+  return timer
+}
+
+/// Create and schedule a timer that will fire every interval optionally by limiting the number of fires.
+///
+/// - Parameters:
+///   - interval: interval of fire
+///   - count: a non `nil` and &gt; 0  value to limit the number of fire, `nil` to set it as infinite.
+///   - queue: destination queue, if `nil` a new `DispatchQueue` is created automatically.
+///   - handler: handler to call on fire
+/// - Returns: timer
+@discardableResult
+public class func every(_ interval: Interval, 
+                        count: Int? = nil, 
+                        tolerance: DispatchTimeInterval = .nanoseconds(0), 
+                        queue: DispatchQueue? = nil, 
+                        _ handler: @escaping Observer) -&gt; Repeater {
+  let mode: Mode = (count != nil ? .finite(count!) : .infinite)
+      let timer = Repeater(interval: interval, mode: mode, tolerance: tolerance, queue: queue, observer: handler)
+  timer.start()
+  return timer
+}
+</code></pre>
+<p>两者的做法大相径庭，都是创建一个定时器实例并「自动开始」，只是开始的方式由于内部固有的实现方式有所不同：</p>
+<ul>
+<li><code>Timer</code> 依赖 <code>RunLoop</code>，需要将创建定时器生成的 <code>CFRunLoopTimer</code> 加入当前 <code>Runloop</code></li>
+<li><code>Repeater</code> 依赖 GCD 的 <code>DispatchSourceTimer</code>，<code>start</code> 内部会调 <code>DispatchSourceTimer</code> 的 实例方法<code>resume</code></li>
+</ul>
+<h3 id="初始化方法">初始化方法</h3>
+<pre><code class="language-swift">/// Initialize a new timer.
+///
+/// - Parameters:
+///   - interval: interval of the timer
+///   - mode: mode of the timer
+///   - tolerance: tolerance of the timer, 0 is default.
+///   - queue: queue in which the timer should be executed; if `nil` a new queue is created automatically.
+///   - observer: observer
+public init(interval: Interval, mode: Mode = .infinite, tolerance: DispatchTimeInterval = .nanoseconds(0), queue: DispatchQueue? = nil, observer: @escaping Observer) {
+  self.mode = mode
+  self.interval = interval
+  self.tolerance = tolerance
+  self.remainingIterations = mode.countIterations
+  self.queue = (queue ?? DispatchQueue(label: &quot;com.repeat.queue&quot;))
+  self.timer = configureTimer()
+  self.observe(observer)
+}
+</code></pre>
+<p>初始化方法参数列表：</p>
+<ul>
+<li><code>interval</code>：定时器时间间隔</li>
+<li><code>mode</code>：定时器重复模式，默认为<code>.infinite</code>，无限重复</li>
+<li><code>tolerance</code>：容许误差（这个最终是作为<code>DispatchSourceTimer</code>的<code>leeway</code>参数）</li>
+<li><code>queue</code>：指定定时器运行的队列，若未指定，则自动创建默认队列</li>
+<li><code>observer</code>：定时器运行的回调方法</li>
+</ul>
+<h4 id="创建并配置-dispatchsourcetimer">创建并配置 DispatchSourceTimer</h4>
+<pre><code class="language-swift">private func configureTimer() -&gt; DispatchSourceTimer {
+  let associatedQueue = (queue ?? DispatchQueue(label: &quot;com.repeat.\(NSUUID().uuidString)&quot;))
+  let timer = DispatchSource.makeTimerSource(queue: associatedQueue)
+  let repeatInterval = interval.value
+  let deadline: DispatchTime = (DispatchTime.now() + repeatInterval)
+  if self.mode.isRepeating {
+    timer.schedule(deadline: deadline, repeating: repeatInterval, leeway: tolerance)
+  } else {
+    timer.schedule(deadline: deadline, leeway: tolerance)
+  }
+
+  timer.setEventHandler { [weak self] in
+    if let unwrapped = self {
+      unwrapped.timeFired()
+    }
+  }
+  return timer
+}
+</code></pre>
+<ul>
+<li>根据初始化传入的参数，初始化并配置一个 DispatchSourceTimer</li>
+<li>将 DispatchSourceTimer 的处理回调通过<code>timeFired</code>方法处理</li>
+</ul>
+<p>这一段代码是 Repeat 中 GCD 的应用关键，Repeat 的核心计时器即是 DispatchSourceTimer，进一步封装并屏蔽部分复杂逻辑，以提供简洁易用的接口。</p>
+<h3 id="计时器启动-暂停与重置">计时器启动、暂停与重置</h3>
+<pre><code class="language-swift">/// Reset the state of the timer, optionally changing the fire interval.
+///
+/// - Parameters:
+///   - interval: new fire interval; pass `nil` to keep the latest interval set.
+///   - restart: `true` to automatically restart the timer, `false` to keep it stopped after configuration.
+public func reset(_ interval: Interval?, restart: Bool = true) {
+  if self.state.isRunning {
+    self.setPause(from: self.state)
+  }
+
+  // For finite counter we want to also reset the repeat count
+  if case .finite(let count) = self.mode {
+    self.remainingIterations = count
+  }
+
+  // Create a new instance of timer configured
+  if let newInterval = interval {
+    self.interval = newInterval
+  } // update interval
+  self.destroyTimer()
+  self.timer = configureTimer()
+  self.state = .paused
+
+  if restart {
+    self.timer?.resume()
+    self.state = .running
+  }
+}
+
+/// Start timer. If timer is already running it does nothing.
+@discardableResult
+public func start() -&gt; Bool {
+  guard self.state.isRunning == false else {
+    return false
+  }
+
+  // If timer has not finished its lifetime we want simply
+  // restart it from the current state.
+  guard self.state.isFinished == true else {
+    self.state = .running
+    self.timer?.resume()
+    return true
+  }
+
+  // Otherwise we need to reset the state based upon the mode
+  // and start it again.
+  self.reset(nil, restart: true)
+  return true
+}
+
+/// Pause a running timer. If timer is paused it does nothing.
+@discardableResult
+public func pause() -&gt; Bool {
+  guard state != .paused &amp;&amp; state != .finished else {
+    return false
+  }
+
+  return self.setPause(from: self.state)
+}
+
+/// Pause a running timer optionally changing the state with regard to the current state.
+///
+/// - Parameters:
+///   - from: the state which the timer should only be paused if it is the current state
+///   - to: the new state to change to if the timer is paused
+/// - Returns: `true` if timer is paused
+@discardableResult
+private func setPause(from currentState: State, to newState: State = .paused) -&gt; Bool {
+  guard self.state == currentState else {
+    return false
+  }
+
+  self.timer?.suspend()
+  self.state = newState
+
+  return true
+}
+</code></pre>
+<ul>
+<li><code>start</code>方法主要是做状态判断并进行相应处理返回结果，其开始计时的核心是调用内部 <code>DispatchSourceTimer</code> 的 <code>resume</code> 方法</li>
+<li><code>pause</code> 方法类似，调用的是 <code>suspend</code> 方法，并更新内部计时器状态</li>
+<li><code>reset</code> 重置内部的一些计时标志位的同时，会将内部的 <code>DispatchSourceTimer</code> 销毁并新建</li>
+</ul>
+<h3 id="添加或移除多个定时观察者">添加或移除多个定时观察者</h3>
+<pre><code class="language-swift">/// List of the observer of the timer
+private var observers = [ObserverToken: Observer]()
+
+/// Next token of the timer
+private var nextObserverID: UInt64 = 0
+
+/// Add new a listener to the timer.
+///
+/// - Parameter callback: callback to call for fire events.
+/// - Returns: token used to remove the handler
+@discardableResult
+public func observe(_ observer: @escaping Observer) -&gt; ObserverToken {
+  var (new, overflow) = self.nextObserverID.addingReportingOverflow(1)
+  if overflow { // you need to add an incredible number of offset...sure you can't
+    self.nextObserverID = 0
+    new = 0
+  }
+  self.nextObserverID = new
+  self.observers[new] = observer
+  return new
+}
+
+/// Remove an observer of the timer.
+///
+/// - Parameter id: id of the observer to remove
+public func remove(observer identifier: ObserverToken) {
+  self.observers.removeValue(forKey: identifier)
+}
+</code></pre>
+<ul>
+<li>通过字典储存观察者回调事件，通过 UInt64 的 ObserverToken 来进行标识</li>
+<li>观察者数量上限控制在 UInt64 的溢出范围</li>
+</ul>
+<h3 id="定时事件触发">定时事件触发</h3>
+<pre><code class="language-swift">/// Called when timer is fired
+private func timeFired() {
+  self.state = .executing
+
+  if case .finite = self.mode {
+    self.remainingIterations! -= 1
+  }
+
+  // dispatch to observers
+  self.observers.values.forEach { $0(self) }
+
+  // manage lifetime
+  switch self.mode {
+  case .once:
+    // once timer's lifetime is finished after the first fire
+    // you can reset it by calling `reset()` function.
+    self.setPause(from: .executing, to: .finished)
+  case .finite:
+    // for finite intervals we decrement the left iterations count...
+    if self.remainingIterations! == 0 {
+      // ...if left count is zero we just pause the timer and stop
+      self.setPause(from: .executing, to: .finished)
+    }
+  case .infinite:
+    // infinite timer does nothing special on the state machine
+    break
+  }
+
+}
+</code></pre>
+<ul>
+<li><code>timeFired</code> 方法被两个地方调用，一个是配置<code>DispatchSourceTimer</code>时设置的事件回调，一个是对外暴露的手动触发方法 <code>fire(andPause:)</code> 中</li>
+<li>根据计时模式更新计时器状态，计时模式的实现核心逻辑即在于此</li>
+<li>遍历所有观察者逐个回调，触发真正的计时器绑定事件</li>
+</ul>
+<h2 id="总结">总结</h2>
+<figure data-type="image" tabindex="2"><img src="https://binlogo.github.io//post-images/1573197309023.png" alt="Repeat Mind Map"></figure>
+<h2 id="致谢与参考">致谢与参考</h2>
+<p>文中涉及源码大部分来自开源社区，以及部分其他文献参考。</p>
+<ul>
+<li>
+<p><a href="https://github.com/malcommac/Repeat">Repeat</a> by Daniele Margutti, under The MIT License (MIT)</p>
+</li>
+<li>
+<p><a href="https://github.com/apple/swift-corelibs-foundation">swift-corelibs-foundation</a> Licensed under Apache License v2.0 with Runtime Library Exception</p>
+</li>
+<li>
+<p><a href="https://medium.com/over-engineering/a-background-repeating-timer-in-swift-412cecfd2ef9">A Background Repeating Timer in Swift</a> by Daniel Galasko</p>
+</li>
+</ul>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a class="purple-link" href="https://binlogo.github.io//post/reflection-and-resolution-2018-2019">
+              <h3 class="post-title">
+                下一篇：2018 助推，2019 沉淀
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+
+      <div class="site-footer">
+  <div class="slogan">记录工作与生活中的灵感💡与思考🤔</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/binlogo" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+        <a href="https://twitter.com/binglogo" target="_blank">
+          <i class="fab fa-twitter"></i>
+        </a>
+      
+    
+      
+        <a href="http://weibo.com/binlogo" target="_blank">
+          <i class="fab fa-weibo"></i>
+        </a>
+      
+    
+      
+        <a href="https://xiaozhuanlan.com/u/2558455195" target="_blank">
+          <i class="fab fa-zhihu"></i>
+        </a>
+      
+    
+      
+    
+  </div>
+  © Binboy by ❤️ | <a class="rss" href="https://binlogo.github.io//atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
