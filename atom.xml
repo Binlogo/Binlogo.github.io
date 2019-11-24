@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://binlogo.github.io/</id>
     <title>彬少の原野</title>
-    <updated>2019-11-08T07:20:42.363Z</updated>
+    <updated>2019-11-24T15:13:09.494Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://binlogo.github.io/"/>
     <link rel="self" href="https://binlogo.github.io//atom.xml"/>
@@ -10,6 +10,13 @@
     <logo>https://binlogo.github.io//images/avatar.png</logo>
     <icon>https://binlogo.github.io//favicon.ico</icon>
     <rights>All rights reserved 2019, 彬少の原野</rights>
+    <entry>
+        <title type="html"><![CDATA[练就「幸福力」——阅读《一个冥想者的觉知书》]]></title>
+        <id>https://binlogo.github.io//post/meditation-keep</id>
+        <link href="https://binlogo.github.io//post/meditation-keep">
+        </link>
+        <updated>2019-11-24T15:11:22.000Z</updated>
+    </entry>
     <entry>
         <title type="html"><![CDATA[探究 Repeat 中 GCD 的应用]]></title>
         <id>https://binlogo.github.io//post/explore-repeat</id>
@@ -72,12 +79,5 @@
         <link href="https://binlogo.github.io//post/reflection-and-resolution-2015-2016">
         </link>
         <updated>2016-01-06T15:57:43.000Z</updated>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[莫怕少年穷——写在北大燕园]]></title>
-        <id>https://binlogo.github.io//post/dont-panic-due-to-young</id>
-        <link href="https://binlogo.github.io//post/dont-panic-due-to-young">
-        </link>
-        <updated>2015-10-31T05:43:11.000Z</updated>
     </entry>
 </feed>
