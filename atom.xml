@@ -2,82 +2,82 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://binlogo.github.io/</id>
     <title>彬少の原野</title>
-    <updated>2019-11-24T15:13:09.494Z</updated>
+    <updated>2020-01-01T01:03:56.056Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://binlogo.github.io/"/>
-    <link rel="self" href="https://binlogo.github.io//atom.xml"/>
+    <link rel="self" href="https://binlogo.github.io/atom.xml"/>
     <subtitle>记录工作与生活中的灵感💡与思考🤔</subtitle>
-    <logo>https://binlogo.github.io//images/avatar.png</logo>
-    <icon>https://binlogo.github.io//favicon.ico</icon>
-    <rights>All rights reserved 2019, 彬少の原野</rights>
+    <logo>https://binlogo.github.io/images/avatar.png</logo>
+    <icon>https://binlogo.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2020, 彬少の原野</rights>
+    <entry>
+        <title type="html"><![CDATA[2019 造风蓄势，2020 扬帆起航]]></title>
+        <id>https://binlogo.github.io/post/2019-zao-feng-xu-shi-2020-yang-fan-qi-hang</id>
+        <link href="https://binlogo.github.io/post/2019-zao-feng-xu-shi-2020-yang-fan-qi-hang">
+        </link>
+        <updated>2020-01-01T00:57:21.000Z</updated>
+    </entry>
     <entry>
         <title type="html"><![CDATA[练就「幸福力」——阅读《一个冥想者的觉知书》]]></title>
-        <id>https://binlogo.github.io//post/meditation-keep</id>
-        <link href="https://binlogo.github.io//post/meditation-keep">
+        <id>https://binlogo.github.io/post/meditation-keep</id>
+        <link href="https://binlogo.github.io/post/meditation-keep">
         </link>
         <updated>2019-11-24T15:11:22.000Z</updated>
     </entry>
     <entry>
         <title type="html"><![CDATA[探究 Repeat 中 GCD 的应用]]></title>
-        <id>https://binlogo.github.io//post/explore-repeat</id>
-        <link href="https://binlogo.github.io//post/explore-repeat">
+        <id>https://binlogo.github.io/post/explore-repeat</id>
+        <link href="https://binlogo.github.io/post/explore-repeat">
         </link>
         <updated>2019-10-28T07:14:13.000Z</updated>
     </entry>
     <entry>
         <title type="html"><![CDATA[2018 助推，2019 沉淀]]></title>
-        <id>https://binlogo.github.io//post/reflection-and-resolution-2018-2019</id>
-        <link href="https://binlogo.github.io//post/reflection-and-resolution-2018-2019">
+        <id>https://binlogo.github.io/post/reflection-and-resolution-2018-2019</id>
+        <link href="https://binlogo.github.io/post/reflection-and-resolution-2018-2019">
         </link>
         <updated>2019-01-08T06:06:23.000Z</updated>
     </entry>
     <entry>
         <title type="html"><![CDATA[2017 如期而至，2018 携手并进]]></title>
-        <id>https://binlogo.github.io//post/reflection-and-resolution-2017-2018</id>
-        <link href="https://binlogo.github.io//post/reflection-and-resolution-2017-2018">
+        <id>https://binlogo.github.io/post/reflection-and-resolution-2017-2018</id>
+        <link href="https://binlogo.github.io/post/reflection-and-resolution-2017-2018">
         </link>
         <updated>2018-01-01T06:02:49.000Z</updated>
     </entry>
     <entry>
         <title type="html"><![CDATA[2016 你没来，2017 我过去 —— 在顺境中反省]]></title>
-        <id>https://binlogo.github.io//post/reflection-and-resolution-2016-2017</id>
-        <link href="https://binlogo.github.io//post/reflection-and-resolution-2016-2017">
+        <id>https://binlogo.github.io/post/reflection-and-resolution-2016-2017</id>
+        <link href="https://binlogo.github.io/post/reflection-and-resolution-2016-2017">
         </link>
         <updated>2017-01-01T06:00:40.000Z</updated>
     </entry>
     <entry>
         <title type="html"><![CDATA[再说「做」享其成]]></title>
-        <id>https://binlogo.github.io//post/do-with-sharing-it</id>
-        <link href="https://binlogo.github.io//post/do-with-sharing-it">
+        <id>https://binlogo.github.io/post/do-with-sharing-it</id>
+        <link href="https://binlogo.github.io/post/do-with-sharing-it">
         </link>
         <updated>2016-11-21T05:47:44.000Z</updated>
     </entry>
     <entry>
         <title type="html"><![CDATA[《重来 1 & 2》之 Remote —— 准备迎接变化]]></title>
-        <id>https://binlogo.github.io//post/read-remote</id>
-        <link href="https://binlogo.github.io//post/read-remote">
+        <id>https://binlogo.github.io/post/read-remote</id>
+        <link href="https://binlogo.github.io/post/read-remote">
         </link>
         <updated>2016-11-16T16:21:07.000Z</updated>
     </entry>
     <entry>
         <title type="html"><![CDATA[《重来 1 & 2》之 Rework —— 工作！别来无恙~]]></title>
-        <id>https://binlogo.github.io//post/read-rework</id>
-        <link href="https://binlogo.github.io//post/read-rework">
+        <id>https://binlogo.github.io/post/read-rework</id>
+        <link href="https://binlogo.github.io/post/read-rework">
         </link>
         <updated>2016-10-29T03:41:01.000Z</updated>
     </entry>
     <entry>
         <title type="html"><![CDATA[《软技能-代码之外的生存指南》书摘简评]]></title>
-        <id>https://binlogo.github.io//post/read-soft-skill</id>
-        <link href="https://binlogo.github.io//post/read-soft-skill">
+        <id>https://binlogo.github.io/post/read-soft-skill</id>
+        <link href="https://binlogo.github.io/post/read-soft-skill">
         </link>
         <updated>2016-10-20T03:36:19.000Z</updated>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[2015 返璞，2016 归真]]></title>
-        <id>https://binlogo.github.io//post/reflection-and-resolution-2015-2016</id>
-        <link href="https://binlogo.github.io//post/reflection-and-resolution-2015-2016">
-        </link>
-        <updated>2016-01-06T15:57:43.000Z</updated>
     </entry>
 </feed>
