@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://binlogo.github.io/</id>
     <title>彬少の原野</title>
-    <updated>2020-07-05T11:04:53.783Z</updated>
+    <updated>2020-10-21T11:14:20.277Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://binlogo.github.io/"/>
     <link rel="self" href="https://binlogo.github.io/atom.xml"/>
@@ -10,6 +10,13 @@
     <logo>https://binlogo.github.io/images/avatar.png</logo>
     <icon>https://binlogo.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 彬少の原野</rights>
+    <entry>
+        <title type="html"><![CDATA[稳中求进-回顾工作这五年]]></title>
+        <id>https://binlogo.github.io/post/wen-zhong-qiu-jin-hui-gu-gong-zuo-zhe-wu-nian/</id>
+        <link href="https://binlogo.github.io/post/wen-zhong-qiu-jin-hui-gu-gong-zuo-zhe-wu-nian/">
+        </link>
+        <updated>2020-10-21T11:11:31.000Z</updated>
+    </entry>
     <entry>
         <title type="html"><![CDATA[练就「专注力」—— 阅读《最重要的事，只有一件》]]></title>
         <id>https://binlogo.github.io/post/lian-jiu-zhuan-zhu-li-yue-du-lesslesszui-chong-yao-de-shi-zhi-you-yi-jian-greatergreater/</id>
@@ -72,12 +79,5 @@
         <link href="https://binlogo.github.io/post/read-remote/">
         </link>
         <updated>2016-11-16T16:21:07.000Z</updated>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[《重来 1 & 2》之 Rework —— 工作！别来无恙~]]></title>
-        <id>https://binlogo.github.io/post/read-rework/</id>
-        <link href="https://binlogo.github.io/post/read-rework/">
-        </link>
-        <updated>2016-10-29T03:41:01.000Z</updated>
     </entry>
 </feed>
