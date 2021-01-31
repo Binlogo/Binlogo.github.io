@@ -2,14 +2,14 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://binlogo.github.io/</id>
     <title>彬少の原野</title>
-    <updated>2020-10-21T11:14:20.277Z</updated>
+    <updated>2021-01-31T09:16:10.349Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://binlogo.github.io/"/>
     <link rel="self" href="https://binlogo.github.io/atom.xml"/>
     <subtitle>记录工作与生活中的灵感💡与思考🤔</subtitle>
     <logo>https://binlogo.github.io/images/avatar.png</logo>
     <icon>https://binlogo.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, 彬少の原野</rights>
+    <rights>All rights reserved 2021, 彬少の原野</rights>
     <entry>
         <title type="html"><![CDATA[稳中求进-回顾工作这五年]]></title>
         <id>https://binlogo.github.io/post/wen-zhong-qiu-jin-hui-gu-gong-zuo-zhe-wu-nian/</id>
