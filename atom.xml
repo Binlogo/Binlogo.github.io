@@ -2,14 +2,14 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://binlogo.github.io/</id>
     <title>彬少の原野</title>
-    <updated>2021-02-01T00:17:38.355Z</updated>
+    <updated>2022-01-23T09:42:02.799Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://binlogo.github.io/"/>
     <link rel="self" href="https://binlogo.github.io/atom.xml"/>
     <subtitle>记录工作与生活中的灵感💡与思考🤔</subtitle>
     <logo>https://binlogo.github.io/images/avatar.png</logo>
     <icon>https://binlogo.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2021, 彬少の原野</rights>
+    <rights>All rights reserved 2022, 彬少の原野</rights>
     <entry>
         <title type="html"><![CDATA[2020 改变再发生，2021 创造正当时]]></title>
         <id>https://binlogo.github.io/post/2020-gai-bian-zai-fa-sheng-2021-chuang-zao-zheng-dang-shi/</id>
@@ -23,6 +23,13 @@
         <link href="https://binlogo.github.io/post/wen-zhong-qiu-jin-hui-gu-gong-zuo-zhe-wu-nian/">
         </link>
         <updated>2020-10-21T11:11:31.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[练就「新思维」 —— 阅读《全新思维：决胜未来的6大能力》]]></title>
+        <id>https://binlogo.github.io/post/lian-jiu-xin-si-wei-yue-du-lesslessquan-xin-si-wei-jue-sheng-wei-lai-de-6-da-neng-li-greatergreater/</id>
+        <link href="https://binlogo.github.io/post/lian-jiu-xin-si-wei-yue-du-lesslessquan-xin-si-wei-jue-sheng-wei-lai-de-6-da-neng-li-greatergreater/">
+        </link>
+        <updated>2020-09-13T09:40:15.000Z</updated>
     </entry>
     <entry>
         <title type="html"><![CDATA[练就「专注力」—— 阅读《最重要的事，只有一件》]]></title>
@@ -72,12 +79,5 @@
         <link href="https://binlogo.github.io/post/reflection-and-resolution-2016-2017/">
         </link>
         <updated>2017-01-01T06:00:40.000Z</updated>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[再说「做」享其成]]></title>
-        <id>https://binlogo.github.io/post/do-with-sharing-it/</id>
-        <link href="https://binlogo.github.io/post/do-with-sharing-it/">
-        </link>
-        <updated>2016-11-21T05:47:44.000Z</updated>
     </entry>
 </feed>
