@@ -1,0 +1,1128 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>工程效率优化：CocoaPods 优化 | 彬少の原野</title>
+<meta name="description" content="记录工作与生活中的灵感💡与思考🤔">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://binlogo.github.io//favicon.ico?v=1649261289137">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://binlogo.github.io//styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-160717450-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-160717450-1');
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://binlogo.github.io/">
+        <img class="avatar" src="https://binlogo.github.io//images/avatar.png?v=1649261289137" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://binlogo.github.io/">
+        <h1 class="site-title">彬少の原野</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a class="menu purple-link" href="/Knowledge-Track" class="menu" target="_blank">
+            第二大脑
+          </a>
+        
+      
+        
+          <a class="menu purple-link" href="https://xiaozhuanlan.com/ui-x" class="menu" target="_blank">
+            学点儿设计
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">工程效率优化：CocoaPods 优化</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2021-10-01</span>
+            
+              <span>
+                <i class="icon-pricetags-outline"></i>
+                
+                  <a href="https://binlogo.github.io/tag/v5Ivtxvrx/">
+                    源码剖析
+                    
+                  </a>
+                
+              </span>
+            
+          </div>
+          <div class="post-content">
+            <p>国内外针对通过 CocoaPods 这个依赖工具链如何做二进制缓存支持已经有了诸多方案和讨论，结合前段时间的一些实践，分享下这个话题，算是对前一段时间的一个回顾总结。</p>
+<h2 id="公开方案与工具汇总">公开方案与工具汇总</h2>
+<ul>
+<li>
+<p><a href="https://github.com/swiftyfinch/Rugby">swiftyfinch/Rugby</a> - CocoaPods 缓存</p>
+</li>
+<li>
+<p><a href="https://github.com/grab/cocoapods-binary-cache">grab/CocoaPods binary cache</a> - Grab 的 CocoaPods 二进制缓存</p>
+</li>
+<li>
+<p><a href="https://github.com/MeetYouDevs/cocoapods-imy-bin">MeetYouDevs/cocoapods-imy-bincocoapods-imy-bin</a> - 美柚维护的 CocoaPods 二进制缓存</p>
+</li>
+<li>
+<p><a href="https://github.com/leavez/cocoapods-binary">leavez/cocoapods-binary</a> - 较早的一个 CocoaPods 二进制插件，目前已不维护，是诸多方案的灵感来源</p>
+<ul>
+<li>Signal-iOS 正在使用</li>
+</ul>
+</li>
+<li>
+<p>方案汇总：</p>
+</li>
+<li>
+<p><a href="https://swiftyfinch.github.io/en/2021-03-09-rugby-story">🏈 Rugby: Optimise CocoaPods project | Swifty Finch</a></p>
+<ul>
+<li><a href="https://zhuanlan.zhihu.com/p/44280283">知乎 iOS 基于 CocoaPods 实现的二进制化方案</a></li>
+<li><a href="https://triplecc.github.io/2019/01/21/%E5%9F%BA%E4%BA%8ECocoaPods%E7%9A%84%E7%BB%84%E4%BB%B6%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%8C%96%E5%AE%9E%E8%B7%B5/">基于 CocoaPods 的组件二进制化实践</a></li>
+<li><a href="https://tech.meituan.com/2019/08/08/the-things-behind-the-ios-project-zsource-command.html">美团 iOS 工程 zsource 命令背后的那些事儿</a> - 二进制调试</li>
+</ul>
+</li>
+</ul>
+<p><strong>注</strong>：以上为截止发布时的一些方案，如对未来更多编译优化话题感兴趣可以访问：<a href="https://binlogo.github.io/Knowledge-Track/iOSDev/build-optimization.html">编译优化 - 棒棒彬的第二大脑</a></p>
+<h2 id="cocoapods-binary-原理与源码剖析">CocoaPods-Binary 原理与源码剖析</h2>
+<p><strong>关键字</strong>：<a href="https://guides.cocoapods.org/plugins/pre-compiling-dependencies.html">Pre-Compiling Dependency</a>，依赖预编译</p>
+<h3 id="解决的问题">解决的问题：</h3>
+<p>常规的 Pods 依赖安装后，即使没有对依赖 Pods 进行源码修改，Xcode 仍要重新进行编译；这在大型工程中，是十分耗时的不必要操作。</p>
+<h3 id="解决思路">解决思路：</h3>
+<p>依赖安装 <code>pod install</code> 阶段对 Pods 中的依赖进行预编译，将编译的二进制产物（如：<code>.framework</code> 文件）集成添加到生成的 Xcode 工程中，用以取代源码集成。</p>
+<p>CocoaPods Binary 插件通过在 pre-install 阶段添加以下步骤实现：</p>
+<ul>
+<li>选中指定预编译的 Pod 依赖</li>
+<li>编译这些依赖目标，将生成的二进制产物缓存起来</li>
+<li>将依赖使用到的 Podspec 由原有的源码指定，改为指定编译产生的新二进制产物</li>
+</ul>
+<h3 id="用户使用界面设计">用户使用界面设计：</h3>
+<ul>
+<li>
+<p>安装：Ruby 统一依赖管理 Gem，在 Gemfile 指定，或直接 <code>gem install cocoapods-binary</code></p>
+</li>
+<li>
+<p>集成：CocoaPods 统一插件方式，在 Podfile 指定 <code>plugin 'cocoapods-binary'</code></p>
+</li>
+<li>
+<p>“API”：</p>
+</li>
+<li>
+<p>提供 <code>:binary =&gt; true</code> 作为依赖指定的额外选项</p>
+<ul>
+<li>提供全局选项 <code>all_binary!</code> 将所有依赖进行预编译</li>
+</ul>
+</li>
+</ul>
+<h3 id="实现">实现</h3>
+<h4 id="podfile-的使用界面">Podfile 的使用界面</h4>
+<p>定义相关的 DSL，保存相关的选项参数：</p>
+<pre><code class="language-ruby">module Pod
+    class Podfile
+        module DSL
+
+            # Enable prebuiding for all pods
+            # it has a lower priority to other binary settings
+            def all_binary!
+                DSL.prebuild_all = true
+            end
+
+            # Enable bitcode for prebuilt frameworks
+            def enable_bitcode_for_prebuilt_frameworks!
+                DSL.bitcode_enabled = true
+            end
+
+            # Don't remove source code of prebuilt pods
+            # It may speed up the pod install if git didn't
+            # include the `Pods` folder
+            def keep_source_code_for_prebuilt_frameworks!
+                DSL.dont_remove_source_code = true
+            end
+
+            # Add custom xcodebuild option to the prebuilding action
+            #
+            # You may use this for your special demands. For example: the default archs in dSYMs
+            # of prebuilt frameworks is 'arm64 armv7 x86_64', and no 'i386' for 32bit simulator.
+            # It may generate a warning when building for a 32bit simulator. You may add following
+            # to your podfile
+            #
+            #  ` set_custom_xcodebuild_options_for_prebuilt_frameworks :simulator =&gt; &quot;ARCHS=$(ARCHS_STANDARD)&quot; `
+            #
+            # Another example to disable the generating of dSYM file:
+            #
+            #  ` set_custom_xcodebuild_options_for_prebuilt_frameworks &quot;DEBUG_INFORMATION_FORMAT=dwarf&quot;`
+            #
+            #
+            # @param [String or Hash] options
+            #
+            #   If is a String, it will apply for device and simulator. Use it just like in the commandline.
+            #   If is a Hash, it should be like this: { :device =&gt; &quot;XXXXX&quot;, :simulator =&gt; &quot;XXXXX&quot; }
+            #
+            def set_custom_xcodebuild_options_for_prebuilt_frameworks(options)
+                if options.kind_of? Hash
+                    DSL.custom_build_options = [ options[:device] ] unless options[:device].nil?
+                    DSL.custom_build_options_simulator = [ options[:simulator] ] unless options[:simulator].nil?
+                elsif options.kind_of? String
+                    DSL.custom_build_options = [options]
+                    DSL.custom_build_options_simulator = [options]
+                else
+                    raise &quot;Wrong type.&quot;
+                end
+            end
+
+            private
+            class_attr_accessor :prebuild_all
+            prebuild_all = false
+
+            class_attr_accessor :bitcode_enabled
+            bitcode_enabled = false
+
+            class_attr_accessor :dont_remove_source_code
+            dont_remove_source_code = false
+
+            class_attr_accessor :custom_build_options
+            class_attr_accessor :custom_build_options_simulator
+            self.custom_build_options = []
+            self.custom_build_options_simulator = []
+        end
+    end
+end
+</code></pre>
+<h4 id="hook-pre-install-阶段">Hook pre-install 阶段</h4>
+<p>通过 <code>HooksManager</code> 对 pre_install 进行 hook， 修改 Pod 安装环境与配置</p>
+<pre><code class="language-ruby">Pod::HooksManager.register('cocoapods-binary', :pre_install) do |installer_context|
+  # ...
+
+  # [Check Environment]
+  # check user_framework is on
+  podfile = installer_context.podfile
+  podfile.target_definition_list.each do |target_definition|
+    next if target_definition.prebuild_framework_pod_names.empty?
+    if not target_definition.uses_frameworks?
+      STDERR.puts &quot;[!] Cocoapods-binary requires `use_frameworks!`&quot;.red
+      exit
+    end
+  end
+
+  # -- step 1: prebuild framework ---
+  # Execute a sperated pod install, to generate targets for building framework,
+  # then compile them to framework files.
+  require_relative 'helper/prebuild_sandbox'
+  require_relative 'Prebuild'
+
+  Pod::UI.puts &quot;🚀  Prebuild frameworks&quot;
+
+  # Fetch original installer (which is running this pre-install hook) options,
+  # then pass them to our installer to perform update if needed
+  # Looks like this is the most appropriate way to figure out that something should be updated
+
+  update = nil
+  repo_update = nil
+
+  include ObjectSpace
+  ObjectSpace.each_object(Pod::Installer) { |installer|
+    update = installer.update
+    repo_update = installer.repo_update
+    }
+
+  # control features
+  Pod.is_prebuild_stage = true
+  Pod::Podfile::DSL.enable_prebuild_patch true  # enable sikpping for prebuild targets
+  Pod::Installer.force_disable_integration true # don't integrate targets
+  Pod::Config.force_disable_write_lockfile true # disbale write lock file for perbuild podfile
+  Pod::Installer.disable_install_complete_message true # disable install complete message
+
+  # make another custom sandbox
+  standard_sandbox = installer_context.sandbox
+  prebuild_sandbox = Pod::PrebuildSandbox.from_standard_sandbox(standard_sandbox)
+
+  # get the podfile for prebuild
+  prebuild_podfile = Pod::Podfile.from_ruby(podfile.defined_in_file)
+
+  # install
+  lockfile = installer_context.lockfile
+  binary_installer = Pod::Installer.new(prebuild_sandbox, prebuild_podfile, lockfile)
+
+  if binary_installer.have_exact_prebuild_cache? &amp;&amp; !update
+    binary_installer.install_when_cache_hit!
+  else
+    binary_installer.update = update
+    binary_installer.repo_update = repo_update
+    binary_installer.install!
+  end
+
+
+  # reset the environment
+  Pod.is_prebuild_stage = false
+  Pod::Installer.force_disable_integration false
+  Pod::Podfile::DSL.enable_prebuild_patch false
+  Pod::Config.force_disable_write_lockfile false
+  Pod::Installer.disable_install_complete_message false
+  Pod::UserInterface.warnings = [] # clean the warning in the prebuild step, it's duplicated.
+
+  # -- step 2: pod install ---
+  # install
+  Pod::UI.puts &quot;\n&quot;
+  Pod::UI.puts &quot;🤖  Pod Install&quot;
+  require_relative 'Integration'
+  # go on the normal install step ...
+end
+</code></pre>
+<h4 id="二进制预编译和缓存">二进制预编译和缓存</h4>
+<p>从以上 Hook 的实现代码可以看到，<code>helper/prebuild_sandbox</code> 和 <code>Prebuild</code> 是预编译的核心代码</p>
+<pre><code class="language-ruby">  # -- step 1: prebuild framework ---
+  # Execute a sperated pod install, to generate targets for building framework,
+  # then compile them to framework files.
+  require_relative 'helper/prebuild_sandbox'
+  require_relative 'Prebuild'
+</code></pre>
+<p><code>helper/prebuild_sandbox</code> 主要是定义了编译产物的一些路径。</p>
+<p><code>Prebuild</code> 主要是定义如何编译对应的 framework，以及对应的缓存策略。</p>
+<pre><code class="language-ruby">require_relative 'rome/build_framework'
+require_relative 'helper/passer'
+require_relative 'helper/target_checker'
+
+
+# patch prebuild ability
+module Pod
+    class Installer
+
+        private
+
+				# ...
+
+        public
+
+        # check if need to prebuild
+        def have_exact_prebuild_cache?
+            # check if need build frameworks
+            return false if local_manifest == nil
+
+            changes = prebuild_pods_changes
+            added = changes.added
+            changed = changes.changed
+            unchanged = changes.unchanged
+            deleted = changes.deleted
+
+            exsited_framework_pod_names = sandbox.exsited_framework_pod_names
+            missing = unchanged.select do |pod_name|
+                not exsited_framework_pod_names.include?(pod_name)
+            end
+
+            needed = (added + changed + deleted + missing)
+            return needed.empty?
+        end
+
+
+        # The install method when have completed cache
+        def install_when_cache_hit!
+            # just print log
+            self.sandbox.exsited_framework_target_names.each do |name|
+                UI.puts &quot;Using #{name}&quot;
+            end
+        end
+
+
+        # Build the needed framework files
+        def prebuild_frameworks!
+
+            # build options
+            sandbox_path = sandbox.root
+            existed_framework_folder = sandbox.generate_framework_path
+            bitcode_enabled = Pod::Podfile::DSL.bitcode_enabled
+            targets = []
+
+            if local_manifest != nil
+
+                changes = prebuild_pods_changes
+                added = changes.added
+                changed = changes.changed
+                unchanged = changes.unchanged
+                deleted = changes.deleted
+
+                existed_framework_folder.mkdir unless existed_framework_folder.exist?
+                exsited_framework_pod_names = sandbox.exsited_framework_pod_names
+
+                # additions
+                missing = unchanged.select do |pod_name|
+                    not exsited_framework_pod_names.include?(pod_name)
+                end
+
+
+                root_names_to_update = (added + changed + missing)
+
+                # transform names to targets
+                cache = []
+                targets = root_names_to_update.map do |pod_name|
+                    tars = Pod.fast_get_targets_for_pod_name(pod_name, self.pod_targets, cache)
+                    if tars.nil? || tars.empty?
+                        raise &quot;There's no target named (#{pod_name}) in Pod.xcodeproj.\n #{self.pod_targets.map(&amp;:name)}&quot; if t.nil?
+                    end
+                    tars
+                end.flatten
+
+                # add the dendencies
+                dependency_targets = targets.map {|t| t.recursive_dependent_targets }.flatten.uniq || []
+                targets = (targets + dependency_targets).uniq
+            else
+                targets = self.pod_targets
+            end
+
+            targets = targets.reject {|pod_target| sandbox.local?(pod_target.pod_name) }
+
+
+            # build!
+            Pod::UI.puts &quot;Prebuild frameworks (total #{targets.count})&quot;
+            Pod::Prebuild.remove_build_dir(sandbox_path)
+            targets.each do |target|
+                if !target.should_build?
+                    UI.puts &quot;Prebuilding #{target.label}&quot;
+                    next
+                end
+
+                output_path = sandbox.framework_folder_path_for_target_name(target.name)
+                output_path.mkpath unless output_path.exist?
+                Pod::Prebuild.build(sandbox_path, target, output_path, bitcode_enabled,  Podfile::DSL.custom_build_options,  Podfile::DSL.custom_build_options_simulator)
+
+                # save the resource paths for later installing
+                if target.static_framework? and !target.resource_paths.empty?
+                    framework_path = output_path + target.framework_name
+                    standard_sandbox_path = sandbox.standard_sanbox_path
+
+                    resources = begin
+                        if Pod::VERSION.start_with? &quot;1.5&quot;
+                            target.resource_paths
+                        else
+                            # resource_paths is Hash{String=&gt;Array&lt;String&gt;} on 1.6 and above
+                            # (use AFNetworking to generate a demo data)
+                            # https://github.com/leavez/cocoapods-binary/issues/50
+                            target.resource_paths.values.flatten
+                        end
+                    end
+                    raise &quot;Wrong type: #{resources}&quot; unless resources.kind_of? Array
+
+                    path_objects = resources.map do |path|
+                        object = Prebuild::Passer::ResourcePath.new
+                        object.real_file_path = framework_path + File.basename(path)
+                        object.target_file_path = path.gsub('${PODS_ROOT}', standard_sandbox_path.to_s) if path.start_with? '${PODS_ROOT}'
+                        object.target_file_path = path.gsub(&quot;${PODS_CONFIGURATION_BUILD_DIR}&quot;, standard_sandbox_path.to_s) if path.start_with? &quot;${PODS_CONFIGURATION_BUILD_DIR}&quot;
+                        object
+                    end
+                    Prebuild::Passer.resources_to_copy_for_static_framework[target.name] = path_objects
+                end
+
+            end
+            Pod::Prebuild.remove_build_dir(sandbox_path)
+
+
+            # copy vendored libraries and frameworks
+            targets.each do |target|
+                root_path = self.sandbox.pod_dir(target.name)
+                target_folder = sandbox.framework_folder_path_for_target_name(target.name)
+
+                # If target shouldn't build, we copy all the original files
+                # This is for target with only .a and .h files
+                if not target.should_build?
+                    Prebuild::Passer.target_names_to_skip_integration_framework &lt;&lt; target.name
+                    FileUtils.cp_r(root_path, target_folder, :remove_destination =&gt; true)
+                    next
+                end
+
+                target.spec_consumers.each do |consumer|
+                    file_accessor = Sandbox::FileAccessor.new(root_path, consumer)
+                    lib_paths = file_accessor.vendored_frameworks || []
+                    lib_paths += file_accessor.vendored_libraries
+                    # @TODO dSYM files
+                    lib_paths.each do |lib_path|
+                        relative = lib_path.relative_path_from(root_path)
+                        destination = target_folder + relative
+                        destination.dirname.mkpath unless destination.dirname.exist?
+                        FileUtils.cp_r(lib_path, destination, :remove_destination =&gt; true)
+                    end
+                end
+            end
+
+            # save the pod_name for prebuild framwork in sandbox
+            targets.each do |target|
+                sandbox.save_pod_name_for_target target
+            end
+
+            # Remove useless files
+            # remove useless pods
+            all_needed_names = self.pod_targets.map(&amp;:name).uniq
+            useless_target_names = sandbox.exsited_framework_target_names.reject do |name|
+                all_needed_names.include? name
+            end
+            useless_target_names.each do |name|
+                path = sandbox.framework_folder_path_for_target_name(name)
+                path.rmtree if path.exist?
+            end
+
+            if not Podfile::DSL.dont_remove_source_code
+                # only keep manifest.lock and framework folder in _Prebuild
+                to_remain_files = [&quot;Manifest.lock&quot;, File.basename(existed_framework_folder)]
+                to_delete_files = sandbox_path.children.select do |file|
+                    filename = File.basename(file)
+                    not to_remain_files.include?(filename)
+                end
+                to_delete_files.each do |path|
+                    path.rmtree if path.exist?
+                end
+            else
+                # just remove the tmp files
+                path = sandbox.root + 'Manifest.lock.tmp'
+                path.rmtree if path.exist?
+            end
+
+
+
+        end
+
+
+        # patch the post install hook
+        old_method2 = instance_method(:run_plugins_post_install_hooks)
+        define_method(:run_plugins_post_install_hooks) do
+            old_method2.bind(self).()
+            if Pod::is_prebuild_stage
+                self.prebuild_frameworks!
+            end
+        end
+
+
+    end
+end
+</code></pre>
+<p>其中核心调用 xcodebuild 相关方法的核心编译逻辑在 <code>rome/build_framework.rb</code>。</p>
+<pre><code class="language-ruby">require 'fourflusher'
+require 'xcpretty'
+
+CONFIGURATION = &quot;Release&quot;
+PLATFORMS = { 'iphonesimulator' =&gt; 'iOS',
+              'appletvsimulator' =&gt; 'tvOS',
+              'watchsimulator' =&gt; 'watchOS' }
+
+#  Build specific target to framework file
+#  @param [PodTarget] target
+#         a specific pod target
+#
+def build_for_iosish_platform(sandbox,
+                              build_dir,
+                              output_path,
+                              target,
+                              device,
+                              simulator,
+                              bitcode_enabled,
+                              custom_build_options = [], # Array&lt;String&gt;
+                              custom_build_options_simulator = [] # Array&lt;String&gt;
+                              )
+
+  deployment_target = target.platform.deployment_target.to_s
+
+  target_label = target.label # name with platform if it's used in multiple platforms
+  Pod::UI.puts &quot;Prebuilding #{target_label}...&quot;
+
+  other_options = []
+  # bitcode enabled
+  other_options += ['BITCODE_GENERATION_MODE=bitcode'] if bitcode_enabled
+  # make less arch to iphone simulator for faster build
+  custom_build_options_simulator += ['ARCHS=x86_64', 'ONLY_ACTIVE_ARCH=NO'] if simulator == 'iphonesimulator'
+
+  is_succeed, _ = xcodebuild(sandbox, target_label, device, deployment_target, other_options + custom_build_options)
+  exit 1 unless is_succeed
+  is_succeed, _ = xcodebuild(sandbox, target_label, simulator, deployment_target, other_options + custom_build_options_simulator)
+  exit 1 unless is_succeed
+
+  # paths
+  target_name = target.name # equals target.label, like &quot;AFNeworking-iOS&quot; when AFNetworking is used in multiple platforms.
+  module_name = target.product_module_name
+  device_framework_path = &quot;#{build_dir}/#{CONFIGURATION}-#{device}/#{target_name}/#{module_name}.framework&quot;
+  simulator_framework_path = &quot;#{build_dir}/#{CONFIGURATION}-#{simulator}/#{target_name}/#{module_name}.framework&quot;
+
+  device_binary = device_framework_path + &quot;/#{module_name}&quot;
+  simulator_binary = simulator_framework_path + &quot;/#{module_name}&quot;
+  return unless File.file?(device_binary) &amp;&amp; File.file?(simulator_binary)
+
+  # the device_lib path is the final output file path
+  # combine the binaries
+  tmp_lipoed_binary_path = &quot;#{build_dir}/#{target_name}&quot;
+  lipo_log = `lipo -create -output #{tmp_lipoed_binary_path} #{device_binary} #{simulator_binary}`
+  puts lipo_log unless File.exist?(tmp_lipoed_binary_path)
+  FileUtils.mv tmp_lipoed_binary_path, device_binary, :force =&gt; true
+
+  # collect the swiftmodule file for various archs.
+  device_swiftmodule_path = device_framework_path + &quot;/Modules/#{module_name}.swiftmodule&quot;
+  simulator_swiftmodule_path = simulator_framework_path + &quot;/Modules/#{module_name}.swiftmodule&quot;
+  if File.exist?(device_swiftmodule_path)
+    FileUtils.cp_r simulator_swiftmodule_path + &quot;/.&quot;, device_swiftmodule_path
+  end
+
+  # combine the generated swift headers
+  # (In xcode 10.2, the generated swift headers vary for each archs)
+  # https://github.com/leavez/cocoapods-binary/issues/58
+  simulator_generated_swift_header_path = simulator_framework_path + &quot;/Headers/#{module_name}-Swift.h&quot;
+  device_generated_swift_header_path = device_framework_path + &quot;/Headers/#{module_name}-Swift.h&quot;
+  if File.exist? simulator_generated_swift_header_path
+    device_header = File.read(device_generated_swift_header_path)
+    simulator_header = File.read(simulator_generated_swift_header_path)
+    # https://github.com/Carthage/Carthage/issues/2718#issuecomment-473870461
+    combined_header_content = %Q{
+#if TARGET_OS_SIMULATOR // merged by cocoapods-binary
+
+#{simulator_header}
+
+#else // merged by cocoapods-binary
+
+#{device_header}
+
+#endif // merged by cocoapods-binary
+}
+    File.write(device_generated_swift_header_path, combined_header_content.strip)
+  end
+
+  # handle the dSYM files
+  device_dsym = &quot;#{device_framework_path}.dSYM&quot;
+  if File.exist? device_dsym
+    # lipo the simulator dsym
+    simulator_dsym = &quot;#{simulator_framework_path}.dSYM&quot;
+    if File.exist? simulator_dsym
+      tmp_lipoed_binary_path = &quot;#{output_path}/#{module_name}.draft&quot;
+      lipo_log = `lipo -create -output #{tmp_lipoed_binary_path} #{device_dsym}/Contents/Resources/DWARF/#{module_name} #{simulator_dsym}/Contents/Resources/DWARF/#{module_name}`
+      puts lipo_log unless File.exist?(tmp_lipoed_binary_path)
+      FileUtils.mv tmp_lipoed_binary_path, &quot;#{device_framework_path}.dSYM/Contents/Resources/DWARF/#{module_name}&quot;, :force =&gt; true
+    end
+    # move
+    FileUtils.mv device_dsym, output_path, :force =&gt; true
+  end
+
+  # output
+  output_path.mkpath unless output_path.exist?
+  FileUtils.mv device_framework_path, output_path, :force =&gt; true
+
+end
+
+def xcodebuild(sandbox, target, sdk='macosx', deployment_target=nil, other_options=[])
+  args = %W(-project #{sandbox.project_path.realdirpath} -scheme #{target} -configuration #{CONFIGURATION} -sdk #{sdk} )
+  platform = PLATFORMS[sdk]
+  args += Fourflusher::SimControl.new.destination(:oldest, platform, deployment_target) unless platform.nil?
+  args += other_options
+  log = `xcodebuild #{args.join(&quot; &quot;)} 2&gt;&amp;1`
+  exit_code = $?.exitstatus  # Process::Status
+  is_succeed = (exit_code == 0)
+
+  if !is_succeed
+    begin
+        if log.include?('** BUILD FAILED **')
+            # use xcpretty to print build log
+            # 64 represent command invalid. http://www.manpagez.com/man/3/sysexits/
+            printer = XCPretty::Printer.new({:formatter =&gt; XCPretty::Simple, :colorize =&gt; 'auto'})
+            log.each_line do |line|
+              printer.pretty_print(line)
+            end
+        else
+            raise &quot;shouldn't be handle by xcpretty&quot;
+        end
+    rescue
+        puts log.red
+    end
+  end
+  [is_succeed, log]
+end
+
+
+
+module Pod
+  class Prebuild
+
+    # Build the frameworks with sandbox and targets
+    #
+    # @param  [String] sandbox_root_path
+    #         The sandbox root path where the targets project place
+    #
+    #         [PodTarget] target
+    #         The pod targets to build
+    #
+    #         [Pathname] output_path
+    #         output path for generated frameworks
+    #
+    def self.build(sandbox_root_path, target, output_path, bitcode_enabled = false, custom_build_options=[], custom_build_options_simulator=[])
+
+      return if target.nil?
+
+      sandbox_root = Pathname(sandbox_root_path)
+      sandbox = Pod::Sandbox.new(sandbox_root)
+      build_dir = self.build_dir(sandbox_root)
+
+      # -- build the framework
+      case target.platform.name
+      when :ios then build_for_iosish_platform(sandbox, build_dir, output_path, target, 'iphoneos', 'iphonesimulator', bitcode_enabled, custom_build_options, custom_build_options_simulator)
+      when :osx then xcodebuild(sandbox, target.label, 'macosx', nil, custom_build_options)
+      # when :tvos then build_for_iosish_platform(sandbox, build_dir, target, 'appletvos', 'appletvsimulator')
+      when :watchos then build_for_iosish_platform(sandbox, build_dir, output_path, target, 'watchos', 'watchsimulator', true, custom_build_options, custom_build_options_simulator)
+      else raise &quot;Unsupported platform for '#{target.name}': '#{target.platform.name}'&quot; end
+
+      raise Pod::Informative, 'The build directory was not found in the expected location.' unless build_dir.directory?
+
+      # # --- copy the vendored libraries and framework
+      # frameworks = build_dir.children.select{ |path| File.extname(path) == &quot;.framework&quot; }
+      # Pod::UI.puts &quot;Built #{frameworks.count} #{'frameworks'.pluralize(frameworks.count)}&quot;
+
+      # pod_target = target
+      # consumer = pod_target.root_spec.consumer(pod_target.platform.name)
+      # file_accessor = Pod::Sandbox::FileAccessor.new(sandbox.pod_dir(pod_target.pod_name), consumer)
+      # frameworks += file_accessor.vendored_libraries
+      # frameworks += file_accessor.vendored_frameworks
+
+      # frameworks.uniq!
+
+      # frameworks.each do |framework|
+      #   FileUtils.mkdir_p destination
+      #   FileUtils.cp_r framework, destination, :remove_destination =&gt; true
+      # end
+      # build_dir.rmtree if build_dir.directory?
+    end
+
+    def self.remove_build_dir(sandbox_root)
+      path = build_dir(sandbox_root)
+      path.rmtree if path.exist?
+    end
+
+    private
+
+    def self.build_dir(sandbox_root)
+      # don't know why xcode chose this folder
+      sandbox_root.parent + 'build'
+    end
+
+  end
+end
+</code></pre>
+<h4 id="二进制产物或源码集成控制">二进制产物或源码集成控制</h4>
+<p>预编译后，在常规 pod intall 之前对集成逻辑进行调整。核心逻辑在 <code>Integration.rb</code>。</p>
+<pre><code class="language-ruby">require_relative 'helper/podfile_options'
+require_relative 'helper/feature_switches'
+require_relative 'helper/prebuild_sandbox'
+require_relative 'helper/passer'
+require_relative 'helper/names'
+require_relative 'helper/target_checker'
+
+
+# NOTE:
+# This file will only be loaded on normal pod install step
+# so there's no need to check is_prebuild_stage
+
+
+
+# Provide a special &quot;download&quot; process for prebuilded pods.
+#
+# As the frameworks is already exsited in local folder. We
+# just create a symlink to the original target folder.
+#
+module Pod
+    class Installer
+        class PodSourceInstaller
+
+            def install_for_prebuild!(standard_sanbox)
+                return if standard_sanbox.local? self.name
+
+                # make a symlink to target folder
+                prebuild_sandbox = Pod::PrebuildSandbox.from_standard_sandbox(standard_sanbox)
+                # if spec used in multiple platforms, it may return multiple paths
+                target_names = prebuild_sandbox.existed_target_names_for_pod_name(self.name)
+
+                def walk(path, &amp;action)
+                    return unless path.exist?
+                    path.children.each do |child|
+                        result = action.call(child, &amp;action)
+                        if child.directory?
+                            walk(child, &amp;action) if result
+                        end
+                    end
+                end
+                def make_link(source, target)
+                    source = Pathname.new(source)
+                    target = Pathname.new(target)
+                    target.parent.mkpath unless target.parent.exist?
+                    relative_source = source.relative_path_from(target.parent)
+                    FileUtils.ln_sf(relative_source, target)
+                end
+                def mirror_with_symlink(source, basefolder, target_folder)
+                    target = target_folder + source.relative_path_from(basefolder)
+                    make_link(source, target)
+                end
+
+                target_names.each do |name|
+
+                    # symbol link copy all substructure
+                    real_file_folder = prebuild_sandbox.framework_folder_path_for_target_name(name)
+
+                    # If have only one platform, just place int the root folder of this pod.
+                    # If have multiple paths, we use a sperated folder to store different
+                    # platform frameworks. e.g. AFNetworking/AFNetworking-iOS/AFNetworking.framework
+
+                    target_folder = standard_sanbox.pod_dir(self.name)
+                    if target_names.count &gt; 1
+                        target_folder += real_file_folder.basename
+                    end
+                    target_folder.rmtree if target_folder.exist?
+                    target_folder.mkpath
+
+
+                    walk(real_file_folder) do |child|
+                        source = child
+                        # only make symlink to file and `.framework` folder
+                        if child.directory? and [&quot;.framework&quot;, &quot;.dSYM&quot;].include? child.extname
+                            mirror_with_symlink(source, real_file_folder, target_folder)
+                            next false  # return false means don't go deeper
+                        elsif child.file?
+                            mirror_with_symlink(source, real_file_folder, target_folder)
+                            next true
+                        else
+                            next true
+                        end
+                    end
+
+
+                    # symbol link copy resource for static framework
+                    hash = Prebuild::Passer.resources_to_copy_for_static_framework || {}
+
+                    path_objects = hash[name]
+                    if path_objects != nil
+                        path_objects.each do |object|
+                            make_link(object.real_file_path, object.target_file_path)
+                        end
+                    end
+                end # of for each
+
+            end # of method
+
+        end
+    end
+end
+
+
+# Let cocoapods use the prebuild framework files in install process.
+#
+# the code only effect the second pod install process.
+#
+module Pod
+    class Installer
+
+
+        # Remove the old target files if prebuild frameworks changed
+        def remove_target_files_if_needed
+
+            changes = Pod::Prebuild::Passer.prebuild_pods_changes
+            updated_names = []
+            if changes == nil
+                updated_names = PrebuildSandbox.from_standard_sandbox(self.sandbox).exsited_framework_pod_names
+            else
+                added = changes.added
+                changed = changes.changed
+                deleted = changes.deleted
+                updated_names = added + changed + deleted
+            end
+
+            updated_names.each do |name|
+                root_name = Specification.root_name(name)
+                next if self.sandbox.local?(root_name)
+
+                # delete the cached files
+                target_path = self.sandbox.pod_dir(root_name)
+                target_path.rmtree if target_path.exist?
+
+                support_path = sandbox.target_support_files_dir(root_name)
+                support_path.rmtree if support_path.exist?
+            end
+
+        end
+
+
+        # Modify specification to use only the prebuild framework after analyzing
+        old_method2 = instance_method(:resolve_dependencies)
+        define_method(:resolve_dependencies) do
+
+            # Remove the old target files, else it will not notice file changes
+            self.remove_target_files_if_needed
+
+            # call original
+            old_method2.bind(self).()
+            # ...
+            # ...
+            # ...
+            # after finishing the very complex orginal function
+
+            # check the pods
+            # Although we have did it in prebuild stage, it's not sufficient.
+            # Same pod may appear in another target in form of source code.
+            # Prebuild.check_one_pod_should_have_only_one_target(self.prebuild_pod_targets)
+            self.validate_every_pod_only_have_one_form
+
+
+            # prepare
+            cache = []
+
+            def add_vendered_framework(spec, platform, added_framework_file_path)
+                if spec.attributes_hash[platform] == nil
+                    spec.attributes_hash[platform] = {}
+                end
+                vendored_frameworks = spec.attributes_hash[platform][&quot;vendored_frameworks&quot;] || []
+                vendored_frameworks = [vendored_frameworks] if vendored_frameworks.kind_of?(String)
+                vendored_frameworks += [added_framework_file_path]
+                spec.attributes_hash[platform][&quot;vendored_frameworks&quot;] = vendored_frameworks
+            end
+            def empty_source_files(spec)
+                spec.attributes_hash[&quot;source_files&quot;] = []
+                [&quot;ios&quot;, &quot;watchos&quot;, &quot;tvos&quot;, &quot;osx&quot;].each do |plat|
+                    if spec.attributes_hash[plat] != nil
+                        spec.attributes_hash[plat][&quot;source_files&quot;] = []
+                    end
+                end
+            end
+
+
+            specs = self.analysis_result.specifications
+            prebuilt_specs = (specs.select do |spec|
+                self.prebuild_pod_names.include? spec.root.name
+            end)
+
+            prebuilt_specs.each do |spec|
+
+                # Use the prebuild framworks as vendered frameworks
+                # get_corresponding_targets
+                targets = Pod.fast_get_targets_for_pod_name(spec.root.name, self.pod_targets, cache)
+                targets.each do |target|
+                    # the framework_file_path rule is decided when `install_for_prebuild`,
+                    # as to compitable with older version and be less wordy.
+                    framework_file_path = target.framework_name
+                    framework_file_path = target.name + &quot;/&quot; + framework_file_path if targets.count &gt; 1
+                    add_vendered_framework(spec, target.platform.name.to_s, framework_file_path)
+                end
+                # Clean the source files
+                # we just add the prebuilt framework to specific platform and set no source files
+                # for all platform, so it doesn't support the sence that 'a pod perbuild for one
+                # platform and not for another platform.'
+                empty_source_files(spec)
+
+                # to remove the resurce bundle target.
+                # When specify the &quot;resource_bundles&quot; in podspec, xcode will generate a bundle
+                # target after pod install. But the bundle have already built when the prebuit
+                # phase and saved in the framework folder. We will treat it as a normal resource
+                # file.
+                # https://github.com/leavez/cocoapods-binary/issues/29
+                if spec.attributes_hash[&quot;resource_bundles&quot;]
+                    bundle_names = spec.attributes_hash[&quot;resource_bundles&quot;].keys
+                    spec.attributes_hash[&quot;resource_bundles&quot;] = nil
+                    spec.attributes_hash[&quot;resources&quot;] ||= []
+                    spec.attributes_hash[&quot;resources&quot;] += bundle_names.map{|n| n+&quot;.bundle&quot;}
+                end
+
+                # to avoid the warning of missing license
+                spec.attributes_hash[&quot;license&quot;] = {}
+
+            end
+
+        end
+
+
+        # Override the download step to skip download and prepare file in target folder
+        old_method = instance_method(:install_source_of_pod)
+        define_method(:install_source_of_pod) do |pod_name|
+
+            # copy from original
+            pod_installer = create_pod_installer(pod_name)
+            # \copy from original
+
+            if self.prebuild_pod_names.include? pod_name
+                pod_installer.install_for_prebuild!(self.sandbox)
+            else
+                pod_installer.install!
+            end
+
+            # copy from original
+            @installed_specs.concat(pod_installer.specs_by_platform.values.flatten.uniq)
+            # \copy from original
+        end
+
+
+    end
+end
+
+# A fix in embeded frameworks script.
+#
+# The framework file in pod target folder is a symblink. The EmbedFrameworksScript use `readlink`
+# to read the read path. As the symlink is a relative symlink, readlink cannot handle it well. So
+# we override the `readlink` to a fixed version.
+#
+module Pod
+    module Generator
+        class EmbedFrameworksScript
+
+            old_method = instance_method(:script)
+            define_method(:script) do
+
+                script = old_method.bind(self).()
+                patch = &lt;&lt;-SH.strip_heredoc
+                    #!/bin/sh
+
+                    # ---- this is added by cocoapods-binary ---
+                    # Readlink cannot handle relative symlink well, so we override it to a new one
+                    # If the path isn't an absolute path, we add a realtive prefix.
+                    old_read_link=`which readlink`
+                    readlink () {
+                        path=`$old_read_link &quot;$1&quot;`;
+                        if [ $(echo &quot;$path&quot; | cut -c 1-1) = '/' ]; then
+                            echo $path;
+                        else
+                            echo &quot;`dirname $1`/$path&quot;;
+                        fi
+                    }
+                    # ---
+                SH
+
+                # patch the rsync for copy dSYM symlink
+                script = script.gsub &quot;rsync --delete&quot;, &quot;rsync --copy-links --delete&quot;
+
+                patch + script
+            end
+        end
+    end
+end
+</code></pre>
+<p>以上，基本就是 CocoaPods-Binary 的核心实现逻辑了。</p>
+<h2 id="总结">总结</h2>
+<p>结合不同的二进制缓存方案，以及 CocoaPods-Binary 的源码实现，可以看出来，整体的方案是较为容易理解的，但通过 CocoaPods 插件实现时，有非常多的细节需要处理，包括友好的 API 用户交互界面和错误处理提示。</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a class="purple-link" href="https://binlogo.github.io/post/2020-gai-bian-zai-fa-sheng-2021-chuang-zao-zheng-dang-shi/">
+              <h3 class="post-title">
+                下一篇：2020 改变再发生，2021 创造正当时
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+
+      <div class="site-footer">
+  <div class="slogan">记录工作与生活中的灵感💡与思考🤔</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/binlogo" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+        <a href="https://twitter.com/binglogo" target="_blank">
+          <i class="fab fa-twitter"></i>
+        </a>
+      
+    
+      
+        <a href="http://weibo.com/binlogo" target="_blank">
+          <i class="fab fa-weibo"></i>
+        </a>
+      
+    
+      
+        <a href="https://xiaozhuanlan.com/u/2558455195" target="_blank">
+          <i class="fab fa-zhihu"></i>
+        </a>
+      
+    
+      
+    
+  </div>
+  © Binboy by ❤️ | <a class="rss" href="https://binlogo.github.io//atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
